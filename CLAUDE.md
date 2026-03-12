@@ -139,7 +139,7 @@ Everything goes in one vector DB at `archive/data/`:
 ## Running
 
 ```bash
-pip install -r requirements.txt
+pip install -r main/requirements.txt
 python -m main.main --task "your task here"
 # While running: type /btw <message> to interrupt | /status to see agents
 ```
@@ -147,5 +147,5 @@ python -m main.main --task "your task here"
 ## Docker
 
 ```bash
-AGENT_TASK="write a hello world script" docker-compose up root
+AGENT_TASK="write a hello world script" docker-compose -f agents/docker-compose.yml up root
 ```

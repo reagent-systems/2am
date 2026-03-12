@@ -1,18 +1,18 @@
 version: "3.9"
 
-# docker-compose up -e AGENT_TASK="write a hello world script" root
+# Run from project root: docker-compose -f agents/docker-compose.yml up -e AGENT_TASK="write a hello world script" root
 # Each agent is a container with its own workspace volume.
 # The archive and messaging dirs are shared mounts across all agents.
 
 x-agent: &agent-base
   build:
-    context: .
+    context: ..
     dockerfile: agents/Dockerfile
-  env_file: .env
+  env_file: ../.env
   volumes:
     # Shared: archive (vector DB) and messaging bus log
-    - ./archive:/2am/archive
-    - ./messaging/data:/2am/messaging/data
+    - ../archive:/2am/archive
+    - ../messaging/data:/2am/messaging/data
   environment:
     - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
@@ -25,10 +25,10 @@ services:
       - AGENT_TASK=${AGENT_TASK:-"hello world"}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     volumes:
-      - ./archive:/2am/archive
-      - ./messaging/data:/2am/messaging/data
-      - ./agents/running/root/workspace:/2am/agents/running/root/workspace
-      - ./agents/running/root/context:/2am/agents/running/root/context
+      - ../archive:/2am/archive
+      - ../messaging/data:/2am/messaging/data
+      - ./root/workspace:/2am/agents/root/workspace
+      - ./root/context:/2am/agents/root/context
 
   # Spawn additional agents by:
-  #   docker-compose run --rm -e AGENT_ID=worker2 -e AGENT_TASK="subtask" root
+  #   docker-compose -f agents/docker-compose.yml run --rm -e AGENT_ID=worker2 -e AGENT_TASK="subtask" root

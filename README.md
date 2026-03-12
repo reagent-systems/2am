@@ -69,7 +69,7 @@ main/
 ## Running
 
 ```bash
-pip install -r requirements.txt
+pip install -r main/requirements.txt
 python -m main.main --task "your task here"
 ```
 
@@ -129,5 +129,5 @@ Create `archive/tools/<name>/README.md` and `tool.py` with a `make_tool(archive,
 ## Docker
 
 ```bash
-AGENT_TASK="write a hello world script" docker-compose up
+AGENT_TASK="write a hello world script" docker-compose -f agents/docker-compose.yml up root
 ```
