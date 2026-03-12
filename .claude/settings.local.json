@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(claude-api)",
+      "Bash(pip install -r requirements.txt -q 2>&1 | tail -5)",
+      "WebFetch(domain:ghuntley.com)",
+      "Bash(python3 -c \"import sys; sys.path.insert\\(0, '/Users/thyfriendlyfox/Projects/2am'\\); from archive.tools.tools import _slug; print\\(_slug\\('find news about AI', 'worker'\\)\\)\")",
+      "Bash(cat > /Users/thyfriendlyfox/Projects/2am/.gitignore << 'EOF'\n__pycache__/\n*.pyc\n*.pyo\n.env\n*.egg-info/\nEOF\necho \"done\")",
+      "Bash(find /Users/thyfriendlyfox/Projects/2am -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; echo \"cleared\")",
+      "Bash(python3 -c \"import sys; sys.path.insert\\(0, '/Users/thyfriendlyfox/Projects/2am'\\); from archive.db import VectorDB, Archive; print\\('ok'\\)\")"
+    ]
+  }
+}

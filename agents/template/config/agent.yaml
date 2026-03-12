@@ -1,0 +1,32 @@
+# Agent configuration — stored in archive as type=agent_config
+# The description field is the vector DB key: task queries fuzzy-match against it
+
+name: generic_worker
+description: "A general-purpose worker that can read, write, search, and run code"
+
+role: worker
+model: claude-opus-4-6
+max_turns: 20
+
+# claude-agent-sdk allowed tools
+tools:
+  - Read
+  - Write
+  - Edit
+  - Bash
+  - Glob
+  - Grep
+  - WebSearch
+  - WebFetch
+  - Agent
+
+system_prompt: |
+  You are a focused worker agent. Complete the given task concisely.
+  Store intermediate results as files in your workspace.
+  If the task is too large, say "SUBDIVIDE: <subtask1> | <subtask2> | ..."
+
+# MCP servers to connect (optional)
+mcp_servers: {}
+
+# Permission mode: default | acceptEdits | bypassPermissions
+permission_mode: acceptEdits

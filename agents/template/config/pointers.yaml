@@ -1,0 +1,14 @@
+# Archive pointers — IDs of items in the vector DB this agent uses
+# Populated at spawn time by searching the archive for the task description
+# Example:
+#   skills:
+#     - a1b2c3d4   # "web_research: Search the web for information..."
+#   tools:
+#     - e5f6g7h8   # "web_search: Search the web for current information"
+#   workflows: []
+#   knowledge: []
+
+skills: []
+tools: []
+workflows: []
+knowledge: []

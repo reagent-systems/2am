@@ -1,0 +1,7 @@
+# Archive pointers — populated at spawn time from vector DB search
+
+skills: []
+tools: []
+knowledge: []
+workflows: []
+agent_config_id: null

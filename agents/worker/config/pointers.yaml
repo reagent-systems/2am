@@ -1,0 +1,8 @@
+# Archive pointers — populated at spawn time from vector DB search
+# These are the archive item IDs this agent is drawing on
+
+skills: []
+tools: []
+knowledge: []
+workflows: []
+agent_config_id: null
