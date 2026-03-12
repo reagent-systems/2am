@@ -323,7 +323,7 @@ Use "subdivide" to spawn new Worker+Checker pairs for blocking subtasks.""",
                 permission_mode="default",
             ),
         ):
-            if isinstance(msg, ResultMessage):
+            if isinstance(msg, ResultMessage) and msg.result:
                 output_parts.append(msg.result)
 
         raw = "\n".join(output_parts)
@@ -493,9 +493,9 @@ async def _run_pair(worker: Agent, checker: Agent) -> dict:
 
 
 async def _wait_for_agent(bus, agent_id: str, timeout: float = 120) -> dict | None:
-    """Block until agent_id publishes a 'pair_done' or 'act_done' status on the bus."""
-    deadline = asyncio.get_event_loop().time() + timeout
-    while asyncio.get_event_loop().time() < deadline:
+    """Block until agent_id publishes a 'pair_done' status on the bus."""
+    deadline = asyncio.get_running_loop().time() + timeout
+    while asyncio.get_running_loop().time() < deadline:
         msg = await bus.receive(agent_id, timeout=2.0)
         if msg:
             content = msg.get("content", {})
@@ -553,18 +553,16 @@ async def main():
             cfg.model = args.model
 
         agent = Agent(cfg, archive, bus)
-        # If this is a checker, it waits for work via the bus; if worker, it runs the pair
-        if cfg.role == "checker":
-            print(f"[{cfg.name}] checker ready, waiting for work via bus")
-            return
 
-        # Worker: find or create its checker, then run the pair
+        # Worker: find or create its paired checker, then run together
+        # Checkers are always paired with a worker — they don't run standalone
         c_id = cfg.name.replace("-worker", "-checker") if "-worker" in cfg.name else f"{cfg.name}-checker"
         if not (AGENTS_DIR / c_id).exists():
             c_dir = AGENTS_DIR / c_id
             shutil.copytree(AGENTS_DIR / "checker", c_dir, dirs_exist_ok=True)
             c_cfg_data = yaml.safe_load((c_dir / "config" / "agent.yaml").read_text())
-            c_cfg_data.update({"task": f"check: {cfg.task}", "parent": cfg.parent, "name": c_id, "max_turns": cfg.max_turns})
+            checker_turns = max(cfg.max_turns // 2, 5)
+            c_cfg_data.update({"task": f"check: {cfg.task}", "parent": cfg.name, "name": c_id, "max_turns": checker_turns})
             (c_dir / "config" / "agent.yaml").write_text(yaml.dump(c_cfg_data, allow_unicode=True))
             _populate_pointers(c_dir, cfg.task, archive)
 

@@ -1,1 +1,1 @@
-from .main import Agent, AgentConfig, _run_pair
+from .main import Agent, AgentConfig

@@ -1,5 +1,5 @@
 # Checker agent — canonical config
-# Instances are copied from here and placed in agents/running/<slug>/
+# Instances are copied from here and placed in agents/<slug>/
 
 name: checker
 role: checker
