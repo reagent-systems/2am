@@ -24,6 +24,17 @@ worker.act() → checker.check() → done? → save_workflow? → finish
 Depth is bounded: max_turns halves at each spawning level (20 → 10 → 5 → 3).
 Waiting for a subagent to complete is also a valid action — agents loop until completion.
 
+The system is designed to never truly get stuck:
+- Task too large → subdivide into smaller Worker+Checker pairs
+- Missing tool → create_tool builds it; subagent uses it next session
+- Missing package → Bash pip install
+- Missing knowledge → WebSearch/archive_search, then archive_store for others
+- Wrong approach → checker feedback names the gap; worker tries differently
+- Verification too complex → checker spawns sub-checkers per dimension
+
+Every "failed" verdict should produce actionable feedback. The worker always has
+a path forward: retry, subdivide, build a tool, or research. Giving up is not an option.
+
 
 ## Workflow lifecycle
 

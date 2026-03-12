@@ -303,18 +303,28 @@ What went wrong: {feedback}
 Archive context:
 {context}
 
-Decide the next action. Reply ONLY with valid JSON:
+Decide how to unblock. Reply ONLY with valid JSON:
 {{
-  "action": "subdivide"|"retry"|"wait"|"undo"|"share",
+  "action": "subdivide"|"build_tool"|"retry"|"wait"|"undo"|"share",
   "reasoning": "<one sentence>",
   "subtasks": ["<subtask 1>", ...],
+  "tool_name": "<name>",
+  "tool_description": "<what it does>",
   "agent_id": "<agent-id-to-wait-for>",
   "seconds": 5,
   "data": "<content>"
 }}
 
-Use "wait" with "agent_id" to block until a specific spawned subagent completes.
-Use "subdivide" to spawn new Worker+Checker pairs for blocking subtasks.""",
+Action guide:
+- "subdivide"  → break into subtasks, spawn Worker+Checker pairs for each
+- "build_tool" → the task needs a tool that doesn't exist yet; name it and a subagent will build it
+- "retry"      → try again with adjusted approach (include reasoning)
+- "wait"       → block until agent_id publishes pair_done on the bus
+- "undo"       → revert last action and try differently
+- "share"      → broadcast a discovery to other agents
+
+The system recurses: subagents can subdivide further or build their own tools.
+There is always a path forward — choose the action most likely to unblock.""",
             options=ClaudeAgentOptions(
                 cwd=str(self.workspace),
                 allowed_tools=[],
@@ -338,6 +348,15 @@ Use "subdivide" to spawn new Worker+Checker pairs for blocking subtasks.""",
 
         if action == "subdivide":
             await self._subdivide(plan.get("subtasks", []))
+        elif action == "build_tool":
+            # Spawn a subagent whose job is to write the missing tool
+            tool_name = plan.get("tool_name", "new_tool")
+            tool_desc = plan.get("tool_description", "")
+            await self._subdivide([
+                f"Write a new MCP tool called '{tool_name}' that: {tool_desc}. "
+                f"Use the create_tool MCP tool to register it. "
+                f"Follow the template in archive/tools/create_tool/README.md."
+            ])
         elif action == "wait":
             # Wait for a specific subagent to complete (by agent_id on bus)
             # or fall back to a timed sleep
