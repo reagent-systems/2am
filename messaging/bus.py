@@ -87,3 +87,42 @@ class MessageBus:
             if isinstance(c, dict) and "agent" in c:
                 status[c["agent"]] = c
         return status
+
+    # --- user inbox (file-backed so external connectors can write into the bus) ---
+
+    async def receive_user_messages(self):
+        """
+        Poll the inbox file for messages written by external connectors
+        (Telegram, Discord, etc.) and publish them onto the bus.
+
+        Connectors write JSON lines to messaging/data/inbox.jsonl.
+        Each line: {"from": "telegram", "type": "task"|"interrupt"|"file", "content": "...", "agent": "..."}
+        """
+        inbox = self.base_path / "inbox.jsonl"
+        pos = inbox.stat().st_size if inbox.exists() else 0
+
+        while True:
+            await asyncio.sleep(1)
+            if not inbox.exists():
+                continue
+            with open(inbox) as f:
+                f.seek(pos)
+                chunk = f.read()
+                pos = f.tell()
+            for line in chunk.strip().splitlines():
+                if not line:
+                    continue
+                try:
+                    msg = json.loads(line)
+                    type_ = msg.get("type", "broadcast")
+                    content = msg.get("content", "")
+                    sender = msg.get("from", "user")
+                    agent = msg.get("agent")
+                    if type_ == "interrupt" and agent:
+                        await self.interrupt(agent, content, sender=sender)
+                    elif type_ == "task":
+                        await self.broadcast({"from": sender, "type": "task", "content": content}, sender=sender)
+                    else:
+                        await self.broadcast({"from": sender, "content": content}, sender=sender)
+                except json.JSONDecodeError:
+                    pass
