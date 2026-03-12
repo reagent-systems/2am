@@ -43,7 +43,7 @@ from pathlib import Path
 
 import anthropic
 import yaml
-from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage, SystemMessage
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
 
 BASE = Path(__file__).parent.parent
 AGENTS_DIR = BASE / "agents"
