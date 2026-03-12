@@ -54,12 +54,13 @@ def _populate_pointers(agent_dir: Path, task: str, archive):
     skills = archive.search(task, k=3, type_="skill")
     tools = archive.search(task, k=3, type_="tool")
     knowledge = archive.search(task, k=2, type_="knowledge")
+    workflows = archive.search(task, k=3, type_="workflow")
 
     pointers = {
         "skills":    [{"id": r["id"], "name": r["metadata"].get("name"), "score": r["score"]} for r in skills    if r["score"] > 0.05],
         "tools":     [{"id": r["id"], "name": r["metadata"].get("name"), "score": r["score"]} for r in tools     if r["score"] > 0.05],
         "knowledge": [{"id": r["id"], "score": r["score"], "preview": r["text"][:80]}          for r in knowledge if r["score"] > 0.05],
-        "workflows": [],
+        "workflows": [{"id": r["id"], "name": r["metadata"].get("name"), "score": r["score"]} for r in workflows if r["score"] > 0.1],
     }
     (agent_dir / "config" / "pointers.yaml").write_text(yaml.dump(pointers, allow_unicode=True))
 

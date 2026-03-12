@@ -509,11 +509,13 @@ async def _wait_for_agent(bus, agent_id: str, timeout: float = 120) -> dict | No
 # ---------------------------------------------------------------------------
 
 def _seed_archive(archive):
-    """Seed skills and tools from their folder READMEs into the vector DB on first run."""
+    """Seed skills, tools, and workflows from their folders into the vector DB on first run."""
     from archive.skills.loader import seed_skills
     from archive.tools.loader_seed import seed_tools
+    from archive.workflows.loader import seed_workflows
     seed_skills(archive)
     seed_tools(archive)
+    seed_workflows(archive)
 
 
 def _interrupt_listener(bus, agent_name: str, loop):

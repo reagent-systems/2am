@@ -1,6 +1,12 @@
 from claude_agent_sdk import tool
 
 
+async def execute(args: dict, archive, bus, parent_id: str) -> str:
+    """Direct callable for the workflow executor."""
+    results = archive.search(args["query"], k=args.get("k", 5), type_=args.get("type"))
+    return archive.format_context(results) or "No results found."
+
+
 def make_tool(archive, bus, parent_id: str):
 
     @tool(
@@ -9,8 +15,7 @@ def make_tool(archive, bus, parent_id: str):
         {"query": str, "type": str, "k": int},
     )
     async def archive_search(args):
-        results = archive.search(args["query"], k=args.get("k", 5), type_=args.get("type"))
-        text = archive.format_context(results) or "No results found."
+        text = await execute(args, archive, bus, parent_id)
         return {"content": [{"type": "text", "text": text}]}
 
     return archive_search

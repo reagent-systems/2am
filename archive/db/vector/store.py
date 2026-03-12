@@ -82,6 +82,10 @@ class Archive:
         base["system_prompt"] = " ".join(prompts)
         return base
 
+    def list_workflows(self) -> list[dict]:
+        """Return all saved workflows from the archive."""
+        return self.db.all(type_filter="workflow")
+
     def format_context(self, results: list[dict]) -> str:
         """Format search results as a context string for agent prompts."""
         if not results:

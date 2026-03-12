@@ -1,6 +1,21 @@
 from claude_agent_sdk import tool
 
 
+async def execute(args: dict, archive, bus, parent_id: str) -> str:
+    """Direct callable for the workflow executor."""
+    type_ = args.get("type", "knowledge")
+    name = args.get("name", "")
+    if type_ == "skill":
+        id_ = archive.add_skill(name, args["content"])
+    elif type_ == "tool":
+        id_ = archive.add_tool(name, args["content"])
+    elif type_ == "workflow":
+        id_ = archive.add_workflow(name, args["content"])
+    else:
+        id_ = archive.add_knowledge(args["content"], source=name)
+    return f"Stored as {type_} with id={id_}"
+
+
 def make_tool(archive, bus, parent_id: str):
 
     @tool(
@@ -9,16 +24,7 @@ def make_tool(archive, bus, parent_id: str):
         {"content": str, "type": str, "name": str},
     )
     async def archive_store(args):
-        type_ = args.get("type", "knowledge")
-        name = args.get("name", "")
-        if type_ == "skill":
-            id_ = archive.add_skill(name, args["content"])
-        elif type_ == "tool":
-            id_ = archive.add_tool(name, args["content"])
-        elif type_ == "workflow":
-            id_ = archive.add_workflow(name, args["content"])
-        else:
-            id_ = archive.add_knowledge(args["content"], source=name)
-        return {"content": [{"type": "text", "text": f"Stored as {type_} with id={id_}"}]}
+        text = await execute(args, archive, bus, parent_id)
+        return {"content": [{"type": "text", "text": text}]}
 
     return archive_store
